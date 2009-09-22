@@ -678,7 +678,7 @@ function lg_addon_update_register_source($sources)
 				}
 				if ($cache_expired === TRUE)
 				{
-					$this->_write_cache($raw_xml, $cache_key);	
+					$this->_write_cache($raw_xml, $cache_key);
 				}
 			}
 		}
