@@ -7,7 +7,7 @@
 * The concept for this extension comes from the one and only Ryan Masuga! Thanks
 *
 * @package LgAddonUpdater
-* @version 1.0.2
+* @version 1.1.0
 * @author Leevi Graham <http://leevigraham.com>
 * @see http://leevigraham.com/cms-customisation/expressionengine/addon/lg-addon-updater/
 * @copyright Copyright (c) 2007-2008 Leevi Graham
@@ -17,7 +17,7 @@
 if ( ! defined('EXT')) exit('Invalid file request');
 
 if ( ! defined('LG_AU_version')){
-	define("LG_AU_version",			"1.0.2");
+	define("LG_AU_version",			"1.1.0");
 	define("LG_AU_docs_url",		"http://leevigraham.com/cms-customisation/expressionengine/addon/lg-addon-updater/");
 	define("LG_AU_addon_id",		"LG Addon Updater");
 	define("LG_AU_extension_class",	"Lg_addon_updater_ext");
@@ -28,7 +28,7 @@ if ( ! defined('LG_AU_version')){
 * This extension adds an easy way to check if extensions need updating
 *
 * @package LgAddonUpdater
-* @version 1.0.2
+* @version 1.1.0
 * @author Leevi Graham <http://leevigraham.com>
 * @see http://leevigraham.com/cms-customisation/expressionengine/addon/lg-addon-updater/
 * @copyright Copyright (c) 2007-2008 Leevi Graham
@@ -74,8 +74,15 @@ class Lg_addon_updater_ext {
 	*/
 	var $docs_url			= LG_AU_docs_url;
 
-
-
+	// Donate button
+	var $paypal 			=  array(
+		"account"				=> "sales@newism.com.au",
+		"donations_accepted"	=> TRUE,
+		"donation_amount"		=> "20.00",
+		"currency_code"			=> "USD",
+		"return_url"			=> "http://leevigraham.com/donate/thanks/",
+		"cancel_url"			=> "http://leevigraham.com/donate/cancel/"
+	);
 
 	/**
 	* PHP4 Constructor
@@ -158,171 +165,50 @@ class Lg_addon_updater_ext {
 	**/
 	function settings_form($current)
 	{
-		global $DB, $DSP, $LANG, $IN, $PREFS, $SESS;
+		global $DB, $DSP, $LANG, $IN, $PREFS, $REGX, $SESS;
 
 		// create a local variable for the site settings
 		$settings = $this->_get_settings();
+		$settings['cache_refresh'] = (isset($settings['cache_refresh']) === FALSE || empty($settings['cache_refresh']) === TRUE) ? '3200' : $settings['cache_refresh'];
 
-		$DSP->crumbline = TRUE;
+
+		$lgau_query = $DB->query("SELECT class FROM exp_extensions WHERE class = 'Lg_addon_updater_ext' AND enabled = 'y' LIMIT 1");
+		$lgau_enabled = $lgau_query->num_rows ? TRUE : FALSE;
 
 		$DSP->title  = $LANG->line('extension_settings');
+
+		$DSP->crumbline = TRUE;
 		$DSP->crumb  = $DSP->anchor(BASE.AMP.'C=admin'.AMP.'area=utilities', $LANG->line('utilities')).
 		$DSP->crumb_item($DSP->anchor(BASE.AMP.'C=admin'.AMP.'M=utilities'.AMP.'P=extensions_manager', $LANG->line('extensions_manager')));
-
-		$DSP->crumb .= $DSP->crumb_item($LANG->line('lg_addon_updater_title') . " {$this->version}");
+		$DSP->crumb .= $DSP->crumb_item("{$this->name} {$this->version}");
 
 		$DSP->right_crumb($LANG->line('disable_extension'), BASE.AMP.'C=admin'.AMP.'M=utilities'.AMP.'P=toggle_extension_confirm'.AMP.'which=disable'.AMP.'name='.$IN->GBL('name'));
 
-		$DSP->body = '';
-
-		if(isset($settings['show_promos']) === FALSE) {$settings['show_promos'] = 'y';}
-		if($settings['show_promos'] == 'y')
-		{
-			$DSP->body .= "<script src='http://leevigraham.com/promos/ee.php?id=" . rawurlencode(LG_AU_addon_id) ."&v=".$this->version."' type='text/javascript' charset='utf-8'></script>";
-		}
-
-		if(isset($settings['show_donate']) === FALSE) {$settings['show_donate'] = 'y';}
-		if($settings['show_donate'] == 'y')
-		{
-			$DSP->body .= "<style type='text/css' media='screen'>
-				#donate{float:right; margin-top:0; padding-left:190px; position:relative; top:-2px}
-				#donate .button{background:transparent url(http://leevigraham.com/themes/site_themes/default/img/btn_paypal-donation.png) no-repeat scroll left bottom; display:block; height:0; overflow:hidden; position:absolute; top:0; left:0; padding-top:27px; text-decoration:none; width:175px}
-				#donate .button:hover{background-position:top right;}
-			</style>";
-			$DSP->body .= "<p id='donate'>
-							" . $LANG->line('donation') ."
-							<a rel='external' href='https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=sales%40leevigraham%2ecom&amp;item_name=LG%20Expression%20Engine%20Development&amp;amount=%2e00&amp;no_shipping=1&amp;return=http%3a%2f%2fleevigraham%2ecom%2fdonate%2fthanks&amp;cancel_return=http%3a%2f%2fleevigraham%2ecom%2fdonate%2fno%2dthanks&amp;no_note=1&amp;tax=0&amp;currency_code=USD&amp;lc=US&amp;bn=PP%2dDonationsBF&amp;charset=UTF%2d8' class='button' target='_blank'>Donate</a>
+		$DSP->body = "<div class='mor settings-form'>";
+		$DSP->body .= "<p class='donate paypal'>
+							<a rel='external'"
+								. "href='https://www.paypal.com/cgi-bin/webscr?"
+									. "cmd=_donations&amp;"
+									. "business=".rawurlencode($this->paypal["account"])."&amp;"
+									. "item_name=".rawurlencode($this->name . " Development: Donation")."&amp;"
+									. "amount=".rawurlencode($this->paypal["donation_amount"])."&amp;"
+									. "no_shipping=1&amp;return=".rawurlencode($this->paypal["return_url"])."&amp;"
+									. "cancel_return=".rawurlencode($this->paypal["cancel_url"])."&amp;"
+									. "no_note=1&amp;"
+									. "tax=0&amp;"
+									. "currency_code=".$this->paypal["currency_code"]."&amp;"
+									. "lc=US&amp;"
+									. "bn=PP%2dDonationsBF&amp;"
+									. "charset=UTF%2d8'"
+								."class='button'
+								target='_blank'>
+								Support this addon by donating via PayPal.
+							</a>
 						</p>";
-		}
-
-
-		$DSP->body .= $DSP->heading($LANG->line('lg_addon_updater_title') . " <small>{$this->version}</small>");
-		
-		$DSP->body .= $DSP->form_open(
-								array(
-									'action' => 'C=admin'.AMP.'M=utilities'.AMP.'P=save_extension_settings'
-								),
-								// WHAT A M*THERF!@KING B!TCH THIS WAS
-								// REMEMBER THE NAME ATTRIBUTE MUST ALWAYS MATCH THE FILENAME AND ITS CASE SENSITIVE
-								// BUG??
-								array('name' => strtolower(LG_AU_extension_class))
-		);
-
-		// UPDATES
-		$DSP->body .= $DSP->table_open(array('class' => 'tableBorder', 'border' => '0', 'style' => 'margin-top:18px; width:100%'));
-
-		$DSP->body .= $DSP->tr()
-			. $DSP->td('tableHeading', '', '2')
-			. $LANG->line("check_for_updates_title")
-			. $DSP->td_c()
-			. $DSP->tr_c();
-
-		$DSP->body .= $DSP->tr()
-			. $DSP->td('', '', '2')
-			. "<div class='box' style='border-width:0 0 1px 0; margin:0; padding:10px 5px'><p>" . $LANG->line('check_for_updates_info') . "</p></div>"
-			. $DSP->td_c()
-			. $DSP->tr_c();
-
-		$DSP->body .= $DSP->tr()
-			. $DSP->td('tableCellOne', '60%')
-			. $DSP->qdiv('defaultBold', $LANG->line("check_for_updates_label"))
-			. $DSP->td_c();
-
-		$DSP->body .= $DSP->td('tableCellOne')
-			. "<select name='check_for_updates'>"
-				. $DSP->input_select_option('y', "Yes", (($settings['check_for_updates'] == 'y') ? 'y' : '' ))
-				. $DSP->input_select_option('n', "No", (($settings['check_for_updates'] == 'n') ? 'y' : '' ))
-				. $DSP->input_select_footer()
-			. $DSP->td_c()
-			. $DSP->tr_c();
-
-		$DSP->body .= $DSP->tr()
-			. $DSP->td('tableCellTwo', '60%')
-			. $DSP->qdiv('defaultBold', $LANG->line("cache_refresh_label"))
-			. $DSP->td_c();
-
-		$DSP->body .= $DSP->td('tableCellTwo')
-			. $DSP->input_text('cache_refresh', ( ! isset($settings['cache_refresh'])) ? '3200' : $settings['cache_refresh'])
-			. $DSP->td_c()
-			. $DSP->tr_c();
-			$DSP->body .= $DSP->table_c();
-
-		// UPDATES
-		$DSP->body .= $DSP->table_open(array('class' => 'tableBorder', 'border' => '0', 'style' => 'margin-top:18px; width:100%'));
-
-		$DSP->body .= $DSP->tr()
-			. $DSP->td('tableHeading', '', '2')
-			. $LANG->line("check_for_extension_updates_title")
-			. $DSP->td_c()
-			. $DSP->tr_c();
-
-		$DSP->body .= $DSP->tr()
-			. $DSP->td('', '', '2')
-			. "<div class='box' style='border-width:0 0 1px 0; margin:0; padding:10px 5px'><p>" . $LANG->line('check_for_extension_updates_info') . "</p></div>"
-			. $DSP->td_c()
-			. $DSP->tr_c();
-
-		$DSP->body .= $DSP->tr()
-			. $DSP->td('tableCellOne', '60%')
-			. $DSP->qdiv('defaultBold', $LANG->line("check_for_extension_updates_label"))
-			. $DSP->td_c();
-
-		$DSP->body .= $DSP->td('tableCellOne')
-			. "<select name='check_for_extension_updates'>"
-				. $DSP->input_select_option('y', "Yes", (($settings['check_for_extension_updates'] == 'y') ? 'y' : '' ))
-				. $DSP->input_select_option('n', "No", (($settings['check_for_extension_updates'] == 'n') ? 'y' : '' ))
-				. $DSP->input_select_footer()
-			. $DSP->td_c()
-			. $DSP->tr_c();
-
-		$DSP->body .= $DSP->table_c();
-
-		if($IN->GBL('lg_admin') != 'y')
-		{
-			$DSP->body .= $DSP->table_c();
-			$DSP->body .= "<input type='hidden' value='".$settings['show_donate']."' name='show_donate' />";
-			$DSP->body .= "<input type='hidden' value='".$settings['show_promos']."' name='show_promos' />";
-		}
-		else
-		{
-			$DSP->body .= $DSP->table_open(array('class' => 'tableBorder', 'border' => '0', 'style' => 'margin-top:18px; width:100%'));
-			$DSP->body .= $DSP->tr()
-				. $DSP->td('tableHeading', '', '2')
-				. $LANG->line("lg_admin_title")
-				. $DSP->td_c()
-				. $DSP->tr_c();
-
-			$DSP->body .= $DSP->tr()
-				. $DSP->td('tableCellOne', '60%')
-				. $DSP->qdiv('defaultBold', $LANG->line("show_donate_label"))
-				. $DSP->td_c();
-
-			$DSP->body .= $DSP->td('tableCellOne')
-				. "<select name='show_donate'>"
-						. $DSP->input_select_option('y', "Yes", (($settings['show_donate'] == 'y') ? 'y' : '' ))
-						. $DSP->input_select_option('n', "No", (($settings['show_donate'] == 'n') ? 'y' : '' ))
-						. $DSP->input_select_footer()
-				. $DSP->td_c()
-				. $DSP->tr_c();
-
-			$DSP->body .= $DSP->tr()
-				. $DSP->td('tableCellTwo', '60%')
-				. $DSP->qdiv('defaultBold', $LANG->line("show_promos_label"))
-				. $DSP->td_c();
-
-			$DSP->body .= $DSP->td('tableCellTwo')
-				. "<select name='show_promos'>"
-						. $DSP->input_select_option('y', "Yes", (($settings['show_promos'] == 'y') ? 'y' : '' ))
-						. $DSP->input_select_option('n', "No", (($settings['show_promos'] == 'n') ? 'y' : '' ))
-						. $DSP->input_select_footer()
-				. $DSP->td_c()
-				. $DSP->tr_c();
-
-			$DSP->body .= $DSP->table_c();
-		}		
-
-		$DSP->body .= $DSP->qdiv('itemWrapperTop', $DSP->input_submit())
-					. $DSP->form_c();
+		$DSP->body .= $DSP->heading($this->name . " <small>{$this->version}</small>");
+		$folder = strtolower(get_class($this));
+		ob_start(); include(PATH_LIB.'lg_addon_updater/views/lg_addon_updater_ext/form_settings.php'); $DSP->body .= ob_get_clean();
+		$DSP->body .=   "</div>";
 	}
 
 
@@ -872,6 +758,54 @@ function lg_addon_update_register_source($sources)
 		// change the file perms
 		@chmod($file, 0777);
 	}
+
+	/**
+	 * Creates a select box
+	 *
+	 * @access public
+	 * @param mixed $selected The selected value
+	 * @param array $options The select box options in a multi-dimensional array. Array keys are used as the option value, array values are used as the option label
+	 * @param string $input_name The name of the input eg: Lg_polls_ext[log_ip]
+	 * @param string $input_id A unique ID for this select. If no id is given the id will be created from the $input_name
+	 * @param boolean $use_lanng Pass the option label through the $LANG->line() method or display in a raw state
+	 * @param array $attributes Any other attributes for the select box such as class, multiple, size etc
+	 * @return string Select box html
+	 */
+	function select_box($selected, $options, $input_name, $input_id = FALSE, $use_lang = TRUE, $key_is_value = TRUE, $attributes = array())
+	{
+		global $LANG;
+
+		$input_id = ($input_id === FALSE) ? str_replace(array("[", "]"), array("_", ""), $input_name) : $input_id;
+
+		$attributes = array_merge(array(
+			"name" => $input_name,
+			"id" => strtolower($input_id)
+		), $attributes);
+
+		$attributes_str = "";
+		foreach ($attributes as $key => $value)
+		{
+			$attributes_str .= " {$key}='{$value}' ";
+		}
+
+		$ret = "<select{$attributes_str}>";
+
+		foreach($options as $option_value => $option_label)
+		{
+			if (!is_int($option_value))
+				$option_value = $option_value;
+			else
+				$option_value = ($key_is_value === TRUE) ? $option_value : $option_label;
+
+			$option_label = ($use_lang === TRUE) ? $LANG->line($option_label) : $option_label;
+			$checked = ($selected == $option_value) ? " selected='selected' " : "";
+			$ret .= "<option value='{$option_value}'{$checked}>{$option_label}</option>";
+		}
+
+		$ret .= "</select>";
+		return $ret;
+	}
+
 
 }
 

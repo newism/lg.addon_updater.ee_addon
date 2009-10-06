@@ -6,7 +6,7 @@
 * /system/language/english/ folder in your ExpressionEngine installation.
 *
 * @package LGAddonUpdater
-* @version 1.0.2
+* @version 1.1.0
 * @author Leevi Graham <http://leevigraham.com>
 * @see http://leevigraham.com/cms-customisation/expressionengine/addon/lg-addon-updater/
 * @copyright Copyright (c) 2007-2008 Leevi Graham
@@ -29,10 +29,7 @@ $L = array(
 'check_for_extension_updates_info' 	=> 'LG Addon Updater can call home (<a href="http://leevigraham.com/">http://leevigraham.com</a>) and check to see if the extension has been updated.',
 'check_for_extension_updates_label' => 'Would you like this extension to check for updates and display them on your CP homepage?',
 
-'donation'							=> 'This extension was developed by <a href="http://leevigraham.com">Leevi Graham</a>. <br />Support its development by donating.',
-'lg_admin_title'					=> 'LG Admin Options',
-'show_donate_label'					=> 'Show the donation link at the top of the settings page?',
-'show_promos_label'					=> 'Show promos at the top of the settings page?',
+'save_extension_settings'			=> 'Save extension settings',
 
 // END
 ''=>''
