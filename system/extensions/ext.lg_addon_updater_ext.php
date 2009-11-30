@@ -165,15 +165,13 @@ class Lg_addon_updater_ext {
 	**/
 	function settings_form($current)
 	{
-		global $DB, $DSP, $LANG, $IN, $PREFS, $REGX, $SESS;
+		global $DB, $DSP, $EXT, $LANG, $IN, $PREFS, $REGX, $SESS;
 
 		// create a local variable for the site settings
 		$settings = $this->_get_settings();
 		$settings['cache_refresh'] = (isset($settings['cache_refresh']) === FALSE || empty($settings['cache_refresh']) === TRUE) ? '3200' : $settings['cache_refresh'];
 
-
-		$lgau_query = $DB->query("SELECT class FROM exp_extensions WHERE class = 'Lg_addon_updater_ext' AND enabled = 'y' LIMIT 1");
-		$lgau_enabled = $lgau_query->num_rows ? TRUE : FALSE;
+		$lgau_enabled = isset($EXT->version_numbers['Lg_addon_updater_ext']);
 
 		$DSP->title  = $LANG->line('extension_settings');
 
