@@ -17,7 +17,7 @@
 if ( ! defined('EXT')) exit('Invalid file request');
 
 if ( ! defined('LG_AU_version')){
-	define("LG_AU_version",			"1.1.0");
+	define("LG_AU_version",			"1.1.1");
 	define("LG_AU_docs_url",		"http://leevigraham.com/cms-customisation/expressionengine/addon/lg-addon-updater/");
 	define("LG_AU_addon_id",		"LG Addon Updater");
 	define("LG_AU_extension_class",	"Lg_addon_updater_ext");
@@ -108,6 +108,7 @@ class Lg_addon_updater_ext {
 		global $IN, $SESS;
 
 		if(isset($SESS->cache['lg']) === FALSE){ $SESS->cache['lg'] = array();}
+		if(isset($SESS->cache['Morphine']) === FALSE) $SESS->cache['Morphine'] = array();
 
 		$this->settings = $this->_get_settings();
 		$this->debug = $IN->GBL('debug');
@@ -321,6 +322,21 @@ class Lg_addon_updater_ext {
 			return FALSE;
 		}
 
+		if($current < "1.1.1")
+		{
+			$sql[] = $DB->insert_string( 'exp_extensions', 
+											array('extension_id' 	=> '',
+												'class'			=> get_class($this),
+												'method'		=> "show_full_control_panel_end",
+												'hook'			=> "show_full_control_panel_end",
+												'settings'		=> addslashes(serialize($this->settings)),
+												'priority'		=> 10,
+												'version'		=> $this->version,
+												'enabled'		=> "y"
+											)
+										);
+		}
+
 		$sql[] = "UPDATE exp_extensions SET version = '" . $DB->escape_str($this->version) . "' WHERE class = '" . get_class($this) . "'";
 
 		// run all sql queries
@@ -345,34 +361,33 @@ class Lg_addon_updater_ext {
 
 
 
-/**
-* Register a new Addon Source
-*
-* @param    array $sources The existing sources
-* @return   array The new source list
-* @since version 1.0.0
+	/**
+	* Register a new Addon Source
+	*
+	* @param    array $sources The existing sources
+	* @return   array The new source list
+	* @since version 1.0.0
 */
-function lg_addon_update_register_source($sources)
-{
-    global $EXT;
-    // -- Check if we're not the only one using this hook
-    if($EXT->last_call !== FALSE)
-        $sources = $EXT->last_call;
+	function lg_addon_update_register_source($sources)
+	{
+		global $EXT;
+		// -- Check if we're not the only one using this hook
+		if($EXT->last_call !== FALSE)
+			$sources = $EXT->last_call;
 
-    // add a new source
-    // must be in the following format:
-    /*
-    <versions>
-        <addon id='LG Addon Updater' version='2.0.0' last_updated="1218852797" docs_url="http://leevigraham.com/" />
-    </versions>
-    */
-    if($this->settings['check_for_extension_updates'] == 'y')
-    {
-        $sources[] = 'http://leevigraham.com/version-check/versions.xml';
-    }
-    return $sources;
-
-}
+		// add a new source
+		// must be in the following format:
+		/*
+		<versions>
+		<addon id='LG Addon Updater' version='2.0.0' last_updated="1218852797" docs_url="http://leevigraham.com/" />
+		</versions>
+		*/
+		if($this->settings['check_for_extension_updates'] == 'y')
+		{
+			$sources[] = 'http://leevigraham.com/version-check/versions.xml';
+		}
+		return $sources;
+	}
 
 
 	/**
@@ -509,6 +524,28 @@ function lg_addon_update_register_source($sources)
 		return $home;
 	}
 
+	/**
+	* Takes the control panel html before it is sent to the browser
+	*
+	* @param	string $out The control panel html
+	* @return	string The modified control panel html
+	* @see		http://expressionengine.com/developers/extension_hooks/show_full_control_panel_end/
+	*/
+	public function show_full_control_panel_end($out)
+	{
+		global $EXT, $PREFS, $SESS;
+
+		if($EXT->last_call !== FALSE) $out = $EXT->last_call;
+
+		if(isset($SESS->cache['Morphine']['cp_styles_included']) === FALSE)
+		{
+			$css = "\n<link rel='stylesheet' type='text/css' media='screen' href='" . $PREFS->ini('theme_folder_url', 1) . "cp_themes/".$PREFS->ini('cp_theme')."/Morphine/css/MOR_screen.css' />";
+			$out = str_replace("</head>",  $css . "</head>", $out);
+			$SESS->cache['Morphine']['cp_styles_included'] = TRUE;
+		}
+
+		return $out;
+	}
 
 
 	/**
