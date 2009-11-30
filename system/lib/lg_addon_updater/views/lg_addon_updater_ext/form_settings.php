@@ -49,7 +49,7 @@
 						&nbsp;
 						<span class='highlight'>LG Addon Updater is not installed and activated.</span>
 						<input type="hidden" name="check_for_extension_updates" value="0" />
-					<? endif; ?>
+					<?php endif; ?>
 				</td>
 			</tr>
 		</tbody>
