@@ -31,18 +31,18 @@
 
 <div class="tg">
 	<h2><?php print $LANG->line("check_for_extension_updates_title") ?></h2>
-	<div class="info"><?= str_replace("{addon_name}", $this->name, $LANG->line("check_for_extension_updates_info")); ?></div>
+	<div class="info"><?php print str_replace("{addon_name}", $this->name, $LANG->line("check_for_extension_updates_info")); ?></div>
 	<table>
 		<tbody>
 			<tr class="odd">
-				<th style="width:400px;"><?= $LANG->line("check_for_extension_updates_label") ?></th>
+				<th style="width:400px;"><?php print $LANG->line("check_for_extension_updates_label") ?></th>
 				<td>
 					<select<?php if(!$lgau_enabled) : ?> disabled="disabled"<?php endif; ?> name="check_for_extension_updates">
-						<option value="y"<?= ($settings["check_for_extension_updates"] == "y" && $lgau_enabled === TRUE) ? 'selected="selected"' : ''; ?>>
-							<?= $LANG->line("yes") ?>
+						<option value="y"<?php print ($settings["check_for_extension_updates"] == "y" && $lgau_enabled === TRUE) ? 'selected="selected"' : ''; ?>>
+							<?php print $LANG->line("yes") ?>
 						</option>
-						<option value="n"<?= ($settings["check_for_extension_updates"] == "n" || $lgau_enabled === FALSE) ? 'selected="selected"' : ''; ?>>
-							<?= $LANG->line("no") ?>
+						<option value="n"<?php print ($settings["check_for_extension_updates"] == "n" || $lgau_enabled === FALSE) ? 'selected="selected"' : ''; ?>>
+							<?php print $LANG->line("no") ?>
 						</option>
 					</select>
 					<?php if(!$lgau_enabled) : ?>
