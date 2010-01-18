@@ -27,10 +27,13 @@ Enter your ee system folder name [ENTER]:"
 read ee_system_folder
 
 # extensions
+# ln -f -s ../addons/lg.addon_updater.ee_addon/system/extensions/ext.lg_addon_updater_ext.php ../../../ee-admin/extensions/ext.lg_addon_updater_ext.php 
 ln -s "$dirname"/system/extensions/ext.lg_addon_updater_ext.php "$ee_path"/"$ee_system_folder"/extensions/ext.lg_addon_updater_ext.php
 
 # lib
+# ln -f -s ../addons/lg.addon_updater.ee_addon/system/lib/lg_addon_updater ../../../ee-admin/lib/lg_addon_updater
 ln -s "$dirname"/system/lib/lg_addon_updater "$ee_path"/"$ee_system_folder"/lib
 
 # language
+# ln -f -s ../../addons/lg.addon_updater.ee_addon/system/language/english/lang.lg_addon_updater_ext.php ../../../ee-admin/language/english/lang.lg_addon_updater_ext.php
 ln -s "$dirname"/system/language/english/lang.lg_addon_updater_ext.php "$ee_path"/"$ee_system_folder"/language/english/lang.lg_addon_updater_ext.php
