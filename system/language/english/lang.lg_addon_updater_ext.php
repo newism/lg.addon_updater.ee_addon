@@ -17,10 +17,7 @@ $L = array(
 
 "lg_addon_updater_title"			=> "LG Addon Updater",
 
-'access_rights' 					=> 'Extension Access',
-'enable_extension_for_this_site' 	=> 'Enable LG Instruct custom field for this site?',
-
-'check_for_updates_title' 			=> 'Check for 3rd party developer addon updates?',
+'check_for_updates_title' 			=> 'Update notification preferences',
 'check_for_updates_info' 			=> 'For those extensions that allow it, LG Addon Updater check to see if your addons (plugins, extensions &amp; modules) have been updated. Results are cached for a set period of time.',
 'check_for_updates_label' 			=> 'Would you like LG Addon Updater to check for developer updates and display them on your CP homepage?',
 'cache_refresh_label'				=> 'How many minutes you like the update check cached for?',
