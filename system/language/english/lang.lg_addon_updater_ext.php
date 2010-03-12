@@ -6,7 +6,7 @@
 * /system/language/english/ folder in your ExpressionEngine installation.
 *
 * @package LGAddonUpdater
-* @version 1.1.0
+* @version 1.1.2
 * @author Leevi Graham <http://leevigraham.com>
 * @see http://leevigraham.com/cms-customisation/expressionengine/addon/lg-addon-updater/
 * @copyright Copyright (c) 2007-2008 Leevi Graham

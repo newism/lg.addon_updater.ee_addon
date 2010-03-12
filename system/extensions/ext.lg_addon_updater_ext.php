@@ -7,7 +7,7 @@
 * The concept for this extension comes from the one and only Ryan Masuga! Thanks
 *
 * @package LgAddonUpdater
-* @version 1.1.0
+* @version 1.1.2
 * @author Leevi Graham <http://leevigraham.com>
 * @see http://leevigraham.com/cms-customisation/expressionengine/addon/lg-addon-updater/
 * @copyright Copyright (c) 2007-2008 Leevi Graham
@@ -17,7 +17,7 @@
 if ( ! defined('EXT')) exit('Invalid file request');
 
 if ( ! defined('LG_AU_version')){
-	define("LG_AU_version",			"1.1.1");
+	define("LG_AU_version",			"1.1.2");
 	define("LG_AU_docs_url",		"http://leevigraham.com/cms-customisation/expressionengine/addon/lg-addon-updater/");
 	define("LG_AU_addon_id",		"LG Addon Updater");
 	define("LG_AU_extension_class",	"Lg_addon_updater_ext");
@@ -28,7 +28,7 @@ if ( ! defined('LG_AU_version')){
 * This extension adds an easy way to check if extensions need updating
 *
 * @package LgAddonUpdater
-* @version 1.1.0
+* @version 1.1.2
 * @author Leevi Graham <http://leevigraham.com>
 * @see http://leevigraham.com/cms-customisation/expressionengine/addon/lg-addon-updater/
 * @copyright Copyright (c) 2007-2008 Leevi Graham

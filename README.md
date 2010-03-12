@@ -197,6 +197,10 @@ There are no specific upgrade notes for this version.
 
 ### Change log
 
+#### 1.1.2
+
+* Fixed settings bug
+
 #### 1.1.1
 
 * Rewrote documentation
