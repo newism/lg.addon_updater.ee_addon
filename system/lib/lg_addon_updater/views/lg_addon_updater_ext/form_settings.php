@@ -23,7 +23,7 @@
 			</tr>
 			<tr>
 				<th style="width:400px;"><?php print  $LANG->line("cache_refresh_label") ?></th>
-				<td><input type="text" value="<?php print $REGX->form_prep($settings['cache_refresh']); ?>" /></td>
+				<td><input type="text" name="cache_refresh" value="<?php print $REGX->form_prep($settings['cache_refresh']); ?>" /></td>
 			</tr>
 		</tbody>
 	</table>
